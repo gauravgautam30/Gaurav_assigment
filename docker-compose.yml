@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  receiver:
+    build:
+      context: ./receiver # Path to the Dockerfile of the receiver service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE=mongodb://mongo:27017/yourdbname
+      - PASSWORD=yourpassword
+    volumes:
+      - ./receiver:/app
+    depends_on:
+      - mongo
+      - redis
+
+  listener:
+    build:
+      context: ./listener # Path to the Dockerfile of the listener service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE=mongodb://mongo:27017/yourdbname
+      - PASSWORD=yourpassword
+    volumes:
+      - ./listener:/app
+    depends_on:
+      - mongo
+      - redis
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongo-data:
